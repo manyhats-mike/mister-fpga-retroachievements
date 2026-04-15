@@ -4,6 +4,16 @@ All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [0.2.1] - 2026-04-15
+
+### Fixed
+- `ra_update.sh` now tolerates stale/missing CA bundles on MiSTer's BusyBox
+  image. Previously `curl` exited 60 ("unable to get local issuer
+  certificate") against `api.github.com` and aborted the run. The script
+  now tries verified TLS first and, on cert-verification failure (curl
+  rc 35/60/77), warns once and falls back to `--insecure` for the rest of
+  the run.
+
 ## [0.2.0] - 2026-04-15
 
 ### Added

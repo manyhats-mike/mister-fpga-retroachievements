@@ -13,7 +13,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.2.0"
+SCRIPT_VERSION="0.2.1"
 
 RA_DIR="/media/fat/_RA_Cores"
 MANIFEST="${RA_DIR}/.manifest"
@@ -32,6 +32,30 @@ API="https://api.github.com"
 need() { command -v "$1" >/dev/null 2>&1 || { echo "ERR: missing tool '$1'" >&2; exit 1; }; }
 need curl; need unzip
 
+# MiSTer's BusyBox image often ships without a current CA bundle, so curl
+# exits 60 ("unable to get local issuer certificate") against github.com.
+# Try verified first; on TLS errors, warn once and fall back to --insecure
+# for the rest of the run. We're pulling public GitHub release assets
+# identified by tag name, so the downgrade is acceptable here.
+CURL_INSECURE=""
+fetch() {
+  _url="$1"; _out="$2"
+  if [ -n "${CURL_INSECURE}" ]; then
+    curl -sSLk -o "$_out" "$_url"
+    return
+  fi
+  _rc=0
+  curl -sSL -o "$_out" "$_url" || _rc=$?
+  if [ "$_rc" -eq 0 ]; then return 0; fi
+  if [ "$_rc" -eq 60 ] || [ "$_rc" -eq 77 ] || [ "$_rc" -eq 35 ]; then
+    echo "  WARN: TLS verification failed (curl rc=$_rc). Likely a stale CA bundle on this device; falling back to --insecure for the rest of this run." >&2
+    CURL_INSECURE=1
+    curl -sSLk -o "$_out" "$_url"
+    return
+  fi
+  return "$_rc"
+}
+
 json_get() {
   grep -oE "\"$2\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" "$1" | head -1 | sed -E 's/.*:[[:space:]]*"([^"]*)".*/\1/'
 }
@@ -47,14 +71,14 @@ echo "ra_update v${SCRIPT_VERSION}"
 
 # ---- 1. update Main binary from odelot/Main_MiSTer ----
 echo "== checking odelot/Main_MiSTer =="
-curl -sSL -o "$TMP/main_release.json" "$API/repos/$OWNER/Main_MiSTer/releases/latest"
+fetch "$API/repos/$OWNER/Main_MiSTer/releases/latest" "$TMP/main_release.json"
 main_url="$(grep -oE '"browser_download_url"[[:space:]]*:[[:space:]]*"[^"]*\.zip"' "$TMP/main_release.json" | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
 main_tag="$(json_get "$TMP/main_release.json" tag_name)"
 if [ -z "$main_url" ]; then
   echo "  no zip asset on latest release; skipping binary update"
 else
   echo "  latest: $main_tag ($main_url)"
-  curl -sSL -o "$TMP/main.zip" "$main_url"
+  fetch "$main_url" "$TMP/main.zip"
   unzip -o "$TMP/main.zip" -d "$TMP/main" >/dev/null
   found="$(find "$TMP/main" -maxdepth 3 -type f -name MiSTer | head -1)"
   if [ -n "$found" ]; then
@@ -85,7 +109,7 @@ fi
 
 # ---- 2. enumerate odelot's *_MiSTer repos ----
 echo "== enumerating odelot/*_MiSTer repos =="
-curl -sSL -o "$TMP/repos.json" "$API/users/$OWNER/repos?per_page=100"
+fetch "$API/users/$OWNER/repos?per_page=100" "$TMP/repos.json"
 repos="$(grep -oE '"name"[[:space:]]*:[[:space:]]*"[^"]*_MiSTer"' "$TMP/repos.json" | sed -E 's/.*"([^"]*)".*/\1/' | grep -v '^Main_MiSTer$' || true)"
 if [ -z "$repos" ]; then
   echo "  (none found)"
@@ -109,7 +133,7 @@ manifest_tag_for() {
 # ---- 3. for each repo, fetch latest release asset if changed ----
 for repo in $repos; do
   echo "-- $repo --"
-  curl -sSL -o "$TMP/rel.json" "$API/repos/$OWNER/$repo/releases/latest"
+  fetch "$API/repos/$OWNER/$repo/releases/latest" "$TMP/rel.json"
   if grep -q '"message"[[:space:]]*:[[:space:]]*"Not Found"' "$TMP/rel.json"; then
     echo "  no releases yet - skipping"
     continue
@@ -156,10 +180,10 @@ for repo in $repos; do
 
   if [ -n "$rbf_url" ]; then
     src_name="$(basename "$rbf_url")"
-    curl -sSL -o "${RA_DIR}/${basename}.rbf" "$rbf_url"
+    fetch "$rbf_url" "${RA_DIR}/${basename}.rbf"
   else
     src_name="$(basename "$zip_url")"
-    curl -sSL -o "$TMP/${repo}.zip" "$zip_url"
+    fetch "$zip_url" "$TMP/${repo}.zip"
     unzip -o "$TMP/${repo}.zip" -d "$TMP/${repo}" >/dev/null
     inside="$(find "$TMP/${repo}" -maxdepth 4 -type f -name '*.rbf' | head -1)"
     if [ -z "$inside" ]; then
