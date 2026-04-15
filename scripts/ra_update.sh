@@ -13,7 +13,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.2.1"
+SCRIPT_VERSION="0.2.2"
 
 RA_DIR="/media/fat/_RA_Cores"
 MANIFEST="${RA_DIR}/.manifest"
@@ -78,7 +78,9 @@ if [ -z "$main_url" ]; then
   echo "  no zip asset on latest release; skipping binary update"
 else
   echo "  latest: $main_tag ($main_url)"
+  echo "  downloading main binary zip (~1-2 MB)..."
   fetch "$main_url" "$TMP/main.zip"
+  echo "  extracting..."
   unzip -o "$TMP/main.zip" -d "$TMP/main" >/dev/null
   found="$(find "$TMP/main" -maxdepth 3 -type f -name MiSTer | head -1)"
   if [ -n "$found" ]; then
@@ -180,10 +182,13 @@ for repo in $repos; do
 
   if [ -n "$rbf_url" ]; then
     src_name="$(basename "$rbf_url")"
+    echo "  downloading $src_name (core .rbf, several MB)..."
     fetch "$rbf_url" "${RA_DIR}/${basename}.rbf"
   else
     src_name="$(basename "$zip_url")"
+    echo "  downloading $src_name (zipped core, several MB)..."
     fetch "$zip_url" "$TMP/${repo}.zip"
+    echo "  extracting..."
     unzip -o "$TMP/${repo}.zip" -d "$TMP/${repo}" >/dev/null
     inside="$(find "$TMP/${repo}" -maxdepth 4 -type f -name '*.rbf' | head -1)"
     if [ -z "$inside" ]; then

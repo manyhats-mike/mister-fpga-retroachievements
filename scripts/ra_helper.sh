@@ -12,7 +12,7 @@
 
 set -u
 
-SCRIPT_VERSION="0.2.0"
+SCRIPT_VERSION="0.2.2"
 
 SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")/.ra"
 TITLE="RetroAchievements Helper v${SCRIPT_VERSION}"
@@ -38,27 +38,31 @@ if [ ! -d "$SCRIPTS_DIR" ]; then
   exit 1
 fi
 
+# Stream the helper's output into `dialog --programbox` so the user sees
+# progress live (update fetches can take a minute or two; without streaming
+# the menu looked frozen). Programbox keeps the box on screen after the
+# command exits and waits for a keypress to dismiss.
 run_and_show() {
   local label="$1"; shift
   local script="$1"; shift
-  local tmp rc
-  tmp="$(mktemp)"
-  "$SCRIPTS_DIR/$script" "$@" >"$tmp" 2>&1
-  rc=$?
-  dialog --title "$label (exit $rc)" --textbox "$tmp" 22 76
-  rm -f "$tmp"
+  {
+    "$SCRIPTS_DIR/$script" "$@" 2>&1
+    _rc=$?
+    echo
+    echo "--- Done. Exit: $_rc. Press Enter to dismiss. ---"
+  } | dialog --title "$label" --programbox 24 78
 }
 
 run_and_show_env() {
   local label="$1"; shift
   local env_kv="$1"; shift
   local script="$1"; shift
-  local tmp rc
-  tmp="$(mktemp)"
-  env "$env_kv" "$SCRIPTS_DIR/$script" "$@" >"$tmp" 2>&1
-  rc=$?
-  dialog --title "$label (exit $rc)" --textbox "$tmp" 22 76
-  rm -f "$tmp"
+  {
+    env "$env_kv" "$SCRIPTS_DIR/$script" "$@" 2>&1
+    _rc=$?
+    echo
+    echo "--- Done. Exit: $_rc. Press Enter to dismiss. ---"
+  } | dialog --title "$label" --programbox 24 78
 }
 
 show_readme() {

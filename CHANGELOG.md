@@ -4,6 +4,21 @@ All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [0.2.2] - 2026-04-15
+
+### Changed
+- `ra_helper.sh` now streams each helper's stdout/stderr into
+  `dialog --programbox` instead of capturing to a temp file and displaying
+  it after completion. Output (including per-core download progress and
+  per-file status lines) appears live, so the menu no longer looks frozen
+  during long operations like Update. The box stays on screen after the
+  helper exits and shows the exit code; press Enter to dismiss.
+- `ra_update.sh` emits explicit `downloading ...` / `extracting ...`
+  status lines before each large `curl` / `unzip` step so the stream has
+  visible activity rather than long silent gaps (curl is still invoked
+  with `-sS`; byte-level progress isn't line-based enough to render
+  cleanly inside programbox).
+
 ## [0.2.1] - 2026-04-15
 
 ### Fixed
