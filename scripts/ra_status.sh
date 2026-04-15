@@ -5,7 +5,7 @@
 #   - whether the live /media/fat/MiSTer binary matches odelot's or stock
 #   - per-core mode: RA, STOCK, MISSING, NONE, or DIRTY (drift detected)
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -eu

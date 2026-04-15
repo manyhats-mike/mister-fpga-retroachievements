@@ -6,7 +6,7 @@
 #
 # Reboots the device at the end. Achievements stop working after this runs.
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -eu

@@ -27,7 +27,7 @@
 #   MISTER_PASS    FTP password (default: 1 - the MiSTer factory default)
 #   STAGING_DIR    Local working directory (default: ./staging)
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -eu

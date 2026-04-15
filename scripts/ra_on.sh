@@ -11,7 +11,7 @@
 # Idempotent: re-running reapplies the current manifest, useful after
 # update_all pulls fresh stock cores or overwrites the live binary.
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -eu

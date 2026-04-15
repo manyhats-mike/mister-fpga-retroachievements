@@ -18,7 +18,7 @@ On the **MiSTer**:
 ## Step 1: clone and configure
 
 ```sh
-git clone https://github.com/<your-org>/mister-fpga-retroachievements.git
+git clone https://github.com/manyhats-mike/mister-fpga-retroachievements.git
 cd mister-fpga-retroachievements
 chmod +x scripts/*.sh
 ```

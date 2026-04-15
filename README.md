@@ -60,7 +60,7 @@ From your workstation (Linux / macOS / WSL) with `curl` and `unzip`
 installed:
 
 ```sh
-git clone https://github.com/<your-org>/mister-fpga-retroachievements.git
+git clone https://github.com/manyhats-mike/mister-fpga-retroachievements.git
 cd mister-fpga-retroachievements
 chmod +x scripts/*.sh
 MISTER_HOST=192.168.1.42 ./scripts/install.sh

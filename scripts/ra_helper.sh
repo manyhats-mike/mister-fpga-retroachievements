@@ -7,7 +7,7 @@
 # sibling .ra/ dir (/media/fat/Scripts/.ra/) so they do not clutter the MiSTer
 # main menu's Scripts browser -- that browser hides dotfile entries.
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -u

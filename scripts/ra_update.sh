@@ -8,7 +8,7 @@
 #   repo|basename|stock_folder|stock_pattern|release_tag|rbf_source_name
 # Comments start with "#".
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -eu

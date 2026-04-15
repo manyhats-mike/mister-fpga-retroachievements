@@ -10,7 +10,7 @@
 # exposing RAM to DDRAM), so leaving it resident is safe. If you need to
 # fully revert to the upstream MiSTer binary, use ra_rollback_binary.sh.
 #
-# Project: https://github.com/<your-org>/mister-fpga-retroachievements
+# Project: https://github.com/manyhats-mike/mister-fpga-retroachievements
 # License: MIT
 
 set -eu
