@@ -32,7 +32,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.2.0"
+SCRIPT_VERSION="0.2.1"
 
 : "${MISTER_HOST:?MISTER_HOST is required (e.g. 192.168.1.42)}"
 MISTER_USER="${MISTER_USER:-root}"
@@ -55,7 +55,10 @@ need curl; need unzip; need awk
 
 mkdir -p "$STAGING_DIR/cores" "$STAGING_DIR/main"
 
-ftp_url() { printf "ftp://%s/%s" "$MISTER_HOST" "${1#/}"; }
+# Use `ftp://HOST//abs/path` (double slash) so the path is absolute from
+# the FS root rather than relative to the login home. MiSTer's default FTP
+# home is `/root`, so single-slash URLs would fail with 550 / CWD errors.
+ftp_url() { printf "ftp://%s//%s" "$MISTER_HOST" "${1#/}"; }
 
 ftp_get() {
   curl -sS --connect-timeout 10 -u "${MISTER_USER}:${MISTER_PASS}" \

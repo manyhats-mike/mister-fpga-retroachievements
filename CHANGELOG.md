@@ -7,6 +7,10 @@ versioning follows [SemVer](https://semver.org/).
 ## [0.2.1] - 2026-04-15
 
 ### Fixed
+- `install.sh` now uses absolute FTP URLs (`ftp://HOST//path`) instead of
+  single-slash paths. MiSTer's default FTP home is `/root`, so the prior
+  form was being interpreted as relative to `/root` and failing with 550
+  on `CWD media`. Double-slash makes paths absolute from the FS root.
 - `ra_update.sh` now tolerates stale/missing CA bundles on MiSTer's BusyBox
   image. Previously `curl` exited 60 ("unable to get local issuer
   certificate") against `api.github.com` and aborted the run. The script
