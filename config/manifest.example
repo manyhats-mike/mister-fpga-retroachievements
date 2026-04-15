@@ -1,0 +1,24 @@
+# Example manifest. Lives on the MiSTer at /media/fat/_RA_Cores/.manifest
+# and is generated/updated automatically by install.sh and ra_update.sh.
+#
+# Format (pipe-delimited):
+#   repo|basename|stock_folder|stock_pattern|release_tag|rbf_source_name
+#
+# Field meanings:
+#   repo             odelot GitHub repo name (e.g. NES_MiSTer)
+#   basename         core filename base (odelot's core is named <basename>.rbf
+#                    inside /media/fat/_RA_Cores/)
+#   stock_folder     absolute path to the folder containing stock .rbf files
+#                    (e.g. /media/fat/_Console)
+#   stock_pattern    glob matching the stock .rbf filenames
+#   release_tag      tag of the odelot release currently installed
+#   rbf_source_name  filename of the release asset we pulled
+
+# repo|basename|stock_folder|stock_pattern|release_tag|rbf_source_name
+NES_MiSTer|NES|/media/fat/_Console|NES_*.rbf|poc|poc_NES_Mister.zip
+SNES_MiSTer|SNES|/media/fat/_Console|SNES_*.rbf|poc|SNES.rbf
+MegaDrive_MiSTer|MegaDrive|/media/fat/_Console|MegaDrive_*.rbf|poc|MegaDrive.rbf
+SMS_MiSTer|SMS|/media/fat/_Console|SMS_*.rbf|poc|SMS.rbf
+Gameboy_MiSTer|Gameboy|/media/fat/_Console|Gameboy_*.rbf|poc|Gameboy.rbf
+N64_MiSTer|N64|/media/fat/_Console|N64_*.rbf|poc|N64.rbf
+PSX_MiSTer|PSX|/media/fat/_Console|PSX_*.rbf|poc|PSX.rbf

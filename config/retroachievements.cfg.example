@@ -1,0 +1,18 @@
+username=YOUR_RA_USERNAME
+password=YOUR_RA_ACCOUNT_PASSWORD
+
+# The 'password' field above is your actual retroachievements.org account
+# password. odelot's binary calls rc_client_begin_login_with_password() on
+# first login, then caches a session token. This is NOT your Web API key.
+
+# Show popup when a challenge indicator appears (1=yes, 0=no)
+show_challenge_show_popup=1
+
+# Show popup when a challenge indicator disappears / is missed (1=yes, 0=no)
+show_challenge_hide_popup=0
+
+# Show popup for achievement progress updates (1=yes, 0=no)
+show_progress_popups=1
+
+# Include achievement name in progress popups (1=yes, 0=no)
+show_progress_name=1

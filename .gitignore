@@ -1,0 +1,30 @@
+# Local staging / test artifacts
+staging/
+*.rbf
+MiSTer
+MiSTer.stock
+MiSTer.ra
+
+# Real credentials (never commit)
+retroachievements.cfg
+config/retroachievements.cfg
+
+# Manifest state (per-device)
+.manifest
+.state
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Claude Code context (internal development notes, not part of the
+# published project). Both the shared project memory (CLAUDE.md) and
+# device-specific local memory (CLAUDE.local.md) are kept out of the
+# public repo.
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.claude-*
