@@ -32,7 +32,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.2.1"
+SCRIPT_VERSION="0.2.2"
 
 : "${MISTER_HOST:?MISTER_HOST is required (e.g. 192.168.1.42)}"
 MISTER_USER="${MISTER_USER:-root}"
@@ -92,7 +92,8 @@ main_url="$(grep -oE '"browser_download_url"[[:space:]]*:[[:space:]]*"[^"]*\.zip
 main_tag="$(grep -oE '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' "$STAGING_DIR/main_release.json" | head -1 | sed -E 's/.*"([^"]*)".*/\1/')"
 [ -n "$main_url" ] || { echo "ERR: no zip asset on latest Main_MiSTer release" >&2; exit 1; }
 echo "  tag=$main_tag"
-curl -sSL -o "$STAGING_DIR/main.zip" "$main_url"
+echo "  downloading main binary zip..."
+curl --progress-bar -L -o "$STAGING_DIR/main.zip" "$main_url"
 unzip -o "$STAGING_DIR/main.zip" -d "$STAGING_DIR/main" >/dev/null
 MAIN_BIN="$(find "$STAGING_DIR/main" -maxdepth 3 -type f -name MiSTer | head -1)"
 MAIN_WAV="$(find "$STAGING_DIR/main" -maxdepth 3 -type f -name achievement.wav | head -1)"
@@ -125,10 +126,12 @@ for repo in $repos; do
   out="$STAGING_DIR/cores/${basename}.rbf"
   if [ -n "$rbf_url" ]; then
     src_name="$(basename "$rbf_url")"
-    curl -sSL -o "$out" "$rbf_url"
+    echo "  downloading $src_name..."
+    curl --progress-bar -L -o "$out" "$rbf_url"
   else
     src_name="$(basename "$zip_url")"
-    curl -sSL -o "$STAGING_DIR/${repo}.zip" "$zip_url"
+    echo "  downloading $src_name..."
+    curl --progress-bar -L -o "$STAGING_DIR/${repo}.zip" "$zip_url"
     unzip -o "$STAGING_DIR/${repo}.zip" -d "$STAGING_DIR/${repo}" >/dev/null
     inside="$(find "$STAGING_DIR/${repo}" -maxdepth 4 -type f -name '*.rbf' | head -1)"
     [ -n "$inside" ] || { echo "  ERR: no .rbf inside $src_name" >&2; continue; }

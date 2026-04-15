@@ -18,6 +18,10 @@ versioning follows [SemVer](https://semver.org/).
   visible activity rather than long silent gaps (curl is still invoked
   with `-sS`; byte-level progress isn't line-based enough to render
   cleanly inside programbox).
+- `install.sh` runs in a terminal (not dialog), so the multi-MB GitHub
+  downloads (main binary zip + per-core `.rbf`/`.zip`) now use
+  `curl --progress-bar` with a preceding `downloading ...` echo. Small
+  JSON API calls stay silent to avoid flash-bar noise.
 
 ## [0.2.1] - 2026-04-15
 
