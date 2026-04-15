@@ -50,9 +50,11 @@ The installer will:
    latest release `.rbf` from each repo that has one.
 4. Capture the current `/media/fat/MiSTer` as `/media/fat/MiSTer.stock`
    so you have a verified rollback copy.
-5. Upload everything to `/media/fat/_RA_Cores/`, install the toggle
-   scripts under `/media/fat/Scripts/`, and append the boot auto-restore
-   hook to `/media/fat/linux/user-startup.sh`.
+5. Upload everything to `/media/fat/_RA_Cores/`, install `RA_Helper.sh`
+   (the dialog menu) to `/media/fat/Scripts/` as the single MiSTer-menu
+   entry for this tool, install the five toggle scripts under the
+   hidden `/media/fat/Scripts/.ra/` directory, and append the boot
+   auto-restore hook to `/media/fat/linux/user-startup.sh`.
 
 Expected runtime: two to five minutes depending on network speed. The
 core `.rbf` files total ~25 MB.
@@ -90,13 +92,10 @@ Security notes:
 reboot
 ```
 
-When the MiSTer is back up:
+When the MiSTer is back up, use the menu from the MiSTer main menu:
+**Scripts → RA_Helper**.
 
-```sh
-/media/fat/Scripts/ra_status.sh
-```
-
-You should see:
+Pick **Status**. You should see:
 
 ```
 /media/fat/MiSTer : RA (odelot)
@@ -106,13 +105,9 @@ SNES         STOCK   SNES_20260325.rbf
 ...
 ```
 
-The binary is now the odelot build; cores are still stock. Flip the cores:
-
-```sh
-/media/fat/Scripts/ra_on.sh
-```
-
-Run `ra_status.sh` again — every core should now show `RA`.
+The binary is now the odelot build; cores are still stock. Back in the
+menu, pick **Turn RA cores ON**, then re-run **Status** — every core
+should now show `RA`.
 
 ## Step 5: test with a real game
 
@@ -127,18 +122,18 @@ and confirm the unlock toast fires.
 Check that FTP is enabled on the MiSTer. Try `curl -v -u root:1
 ftp://<host>/` from your workstation.
 
-**`ra_status.sh` reports `UNKNOWN` for the binary.**
+**Status reports `UNKNOWN` for the binary.**
 The live binary doesn't match either the captured `MiSTer.stock` or the
-staged `MiSTer.ra`. Run `ra_update.sh` to refresh `MiSTer.ra`, then
-reboot so the boot hook re-applies it.
+staged `MiSTer.ra`. Run **Update odelot assets** from the menu to
+refresh `MiSTer.ra`, then reboot so the boot hook re-applies it.
 
-**`ra_status.sh` reports `DIRTY` for a core.**
+**Status reports `DIRTY` for a core.**
 There's both a symlink and a real stock file for the same system — this
 happens if `update_all` dropped in a newer stock `.rbf` while RA was on.
-Re-run `ra_on.sh`; it will re-stash the new stock file.
+Run **Turn RA cores ON** again; it will re-stash the new stock file.
 
 **OSD popup never appears on a supported system.**
-Verify the core is actually the RA build: `ra_status.sh` should show `RA`
+Verify the core is actually the RA build: **Status** should show `RA`
 for that core. If it's `RA` but no popup, check credentials by viewing
 `/media/fat/retroachievements.cfg` and ensuring the username and password
 are correct. odelot's binary logs to the MiSTer's `logread`; look for

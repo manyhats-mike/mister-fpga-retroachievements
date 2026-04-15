@@ -13,7 +13,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.1.0"
+SCRIPT_VERSION="0.2.0"
 
 RA_DIR="/media/fat/_RA_Cores"
 MANIFEST="${RA_DIR}/.manifest"
@@ -129,12 +129,15 @@ for repo in $repos; do
   known_tag="$(manifest_tag_for "$repo")"
   if [ -z "$known_line" ]; then
     inferred="${repo%_MiSTer}"
-    if [ -t 0 ]; then
+    if [ "${RA_UPDATE_ASSUME_YES:-0}" = "1" ]; then
+      ans="y"
+      echo "  NEW core $repo: auto-adopting (RA_UPDATE_ASSUME_YES=1; basename=$inferred, tag=$tag)"
+    elif [ -t 0 ]; then
       printf "  NEW core detected: %s (basename=%s, tag=%s). Add? [y/N] " "$repo" "$inferred" "$tag"
       read -r ans
     else
       ans="n"
-      echo "  NEW core $repo detected but stdin is not a tty; skipping (run interactively to adopt)"
+      echo "  NEW core $repo detected but stdin is not a tty; skipping (run interactively or set RA_UPDATE_ASSUME_YES=1 to adopt)"
     fi
     [ "$ans" = "y" ] || [ "$ans" = "Y" ] || { echo "  skipping $repo"; continue; }
     basename="$inferred"

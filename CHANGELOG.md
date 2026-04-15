@@ -4,6 +4,29 @@ All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [0.2.0] - 2026-04-15
+
+### Added
+- `scripts/ra_helper.sh` — unified `dialog`-based menu. Deployed on the
+  MiSTer as `/media/fat/Scripts/RA_Helper.sh`; presents Status, Turn ON,
+  Turn OFF, Update, View README, and Rollback in a single screen and
+  shells out to the existing toggle scripts.
+- `RA_UPDATE_ASSUME_YES=1` environment toggle in `ra_update.sh` — when
+  set, new-core adoption prompts auto-answer "y" (used by the menu so it
+  can run non-interactively).
+
+### Changed
+- On-device layout: only `RA_Helper.sh` lives in `/media/fat/Scripts/` so
+  the MiSTer main menu's Scripts browser shows one entry for this tool
+  instead of six. The helpers (`ra_on.sh`, `ra_off.sh`, `ra_status.sh`,
+  `ra_update.sh`, `ra_rollback_binary.sh`) moved to
+  `/media/fat/Scripts/.ra/`, which the browser hides by dotfile
+  convention (same pattern MiSTer_SAM uses for its `.MiSTer_SAM/` dir).
+- `install.sh` uploads to the new layout.
+- `docs/USAGE.md` and `docs/INSTALL.md` now point at the menu as the
+  preferred entry point; direct CLI invocation of helpers is documented
+  as a fallback using the new `.ra/` paths.
+
 ## [0.1.0] - 2026-04-14
 
 Initial release.

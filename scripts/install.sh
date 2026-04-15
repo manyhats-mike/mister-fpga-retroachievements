@@ -12,7 +12,9 @@
 #   3. Uploads the modified binary to /media/fat/_RA_Cores/MiSTer.ra, the
 #      modified cores to /media/fat/_RA_Cores/*.rbf, the achievement.wav,
 #      a placeholder /media/fat/retroachievements.cfg, and the manifest.
-#   4. Uploads the five toggle scripts to /media/fat/Scripts/.
+#   4. Uploads RA_Helper.sh (the dialog-based menu) to /media/fat/Scripts/ as
+#      the single MiSTer-menu-visible entry, and uploads the five toggle
+#      scripts to /media/fat/Scripts/.ra/ where the main menu hides them.
 #   5. Appends a boot auto-restore block to /media/fat/linux/user-startup.sh
 #      so update_all can never permanently displace odelot's binary.
 #
@@ -30,7 +32,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.1.0"
+SCRIPT_VERSION="0.2.0"
 
 : "${MISTER_HOST:?MISTER_HOST is required (e.g. 192.168.1.42)}"
 MISTER_USER="${MISTER_USER:-root}"
@@ -181,12 +183,19 @@ ftp_put "$tmp_manifest" "/media/fat/_RA_Cores/.manifest"
 rm -f "$tmp_manifest"
 echo "  uploaded .manifest"
 
-# --- 5. upload toggle scripts ---
-echo "== uploading toggle scripts =="
+# --- 5. upload toggle scripts + menu wrapper ---
+echo "== uploading menu wrapper and toggle scripts =="
+# RA_Helper.sh is the only entry visible in the MiSTer main menu's Scripts
+# browser. The helpers it wraps live under .ra/ (dotfile dir; hidden from
+# the browser by the same convention MiSTer_SAM uses for .MiSTer_SAM/).
+ftp_mkd "/media/fat/Scripts/.ra"
+ftp_put "$SCRIPT_SRC_DIR/ra_helper.sh" "/media/fat/Scripts/RA_Helper.sh"
+curl -sS -u "${MISTER_USER}:${MISTER_PASS}" --quote "SITE CHMOD 755 /media/fat/Scripts/RA_Helper.sh" "$(ftp_url "/")" >/dev/null 2>&1 || true
+echo "  uploaded RA_Helper.sh (MiSTer menu entry)"
 for s in ra_on.sh ra_off.sh ra_status.sh ra_update.sh ra_rollback_binary.sh; do
-  ftp_put "$SCRIPT_SRC_DIR/$s" "/media/fat/Scripts/$s"
-  curl -sS -u "${MISTER_USER}:${MISTER_PASS}" --quote "SITE CHMOD 755 /media/fat/Scripts/$s" "$(ftp_url "/")" >/dev/null 2>&1 || true
-  echo "  uploaded $s"
+  ftp_put "$SCRIPT_SRC_DIR/$s" "/media/fat/Scripts/.ra/$s"
+  curl -sS -u "${MISTER_USER}:${MISTER_PASS}" --quote "SITE CHMOD 755 /media/fat/Scripts/.ra/$s" "$(ftp_url "/")" >/dev/null 2>&1 || true
+  echo "  uploaded .ra/$s"
 done
 
 # --- 6. append boot auto-restore hook to user-startup.sh ---
@@ -229,11 +238,12 @@ Next steps:
      session token.
   2. Reboot the MiSTer. The boot hook installs odelot's MiSTer binary in
      place; rebooting lets the new binary take over.
-  3. SSH or serial in and run:
-       /media/fat/Scripts/ra_status.sh     # verify baseline
-       /media/fat/Scripts/ra_on.sh         # flip cores to RA builds
+  3. On the MiSTer main menu: Scripts -> RA_Helper. Use the menu to check
+     status ('Status'), then activate cores ('Turn RA cores ON').
   4. Launch a game on a supported system to confirm the achievement set
      loads.
 
-Toggle any time with ra_on.sh / ra_off.sh; no reboot needed for those.
+Toggle any time via the RA_Helper menu; no reboot needed for ON/OFF.
+Helper scripts also live at /media/fat/Scripts/.ra/ if you prefer
+invoking them directly from a shell.
 EOF
