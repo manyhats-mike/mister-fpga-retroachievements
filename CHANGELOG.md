@@ -4,6 +4,55 @@ All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [0.3.0] - 2026-04-21
+
+### Upgrade notes
+- Existing v0.2.x installs: re-run `./scripts/install.sh` once from your
+  workstation to pick up `ra_uninstall.sh`, `ra_self_update.sh`, VERSION,
+  and CHANGELOG.md on the device. `install.sh` is idempotent and leaves
+  your credentials, cores, and boot hook untouched. Future updates can
+  then be driven from the menu under **Updates ▸ Update toolkit**.
+- Fresh installs: no changes to the install flow.
+
+### Added
+- `scripts/ra_uninstall.sh` — one-shot full removal of the toolkit. Inlines
+  the `ra_off` logic, restores `/media/fat/MiSTer` from `MiSTer.stock`,
+  strips the boot hook, deletes `_RA_Cores/`, `MiSTer.stock`,
+  `achievement.wav`, `retroachievements.cfg`, `Scripts/RA_Helper.sh`, and
+  `Scripts/.ra/`, then reboots. Re-execs itself from `/tmp` first so it can
+  safely delete its own directory mid-run. Env toggles:
+  `RA_UNINSTALL_ASSUME_YES=1` (skip prompt), `RA_KEEP_CFG=1` (preserve
+  credential file).
+- `scripts/ra_self_update.sh` — fetches the latest tagged release of the
+  toolkit from GitHub and replaces the helper scripts on the device.
+  Validates the extracted tarball before overwriting anything, and backs up
+  the prior scripts to `/media/fat/Scripts/.ra/.backup_<timestamp>/` so a
+  bad release can be rolled back manually. Never touches odelot's binary,
+  cores, credentials, or the boot hook. Env toggles:
+  `RA_SELF_UPDATE_ASSUME_YES=1`, `RA_SELF_UPDATE_FORCE=1`.
+- `scripts/release.sh` — workstation-side helper that reads `VERSION`,
+  extracts the matching section from `CHANGELOG.md` as release notes, tags
+  the commit, pushes the tag, and creates the GitHub release via `gh`.
+  Idempotent preflight checks (clean tree, tag not already taken).
+- `RA_Helper` menu: new **Updates** submenu groups "Update RA cores
+  (odelot)", "Update toolkit (scripts)", and "View changelog". The
+  changelog viewer renders `/media/fat/Scripts/.ra/CHANGELOG.md` in a
+  `dialog --textbox`.
+- `RA_Helper` menu: new **Uninstall toolkit** entry with two-level
+  confirmation, wired to `ra_uninstall.sh` with `RA_UNINSTALL_ASSUME_YES=1`.
+- `install.sh` now uploads `ra_uninstall.sh`, `ra_self_update.sh`,
+  `VERSION`, and `CHANGELOG.md` alongside the other helpers under
+  `/media/fat/Scripts/.ra/`.
+
+### Changed
+- `install.sh` SCRIPT_VERSION → 0.3.0 (adds uninstall, self-update,
+  VERSION, and CHANGELOG to the upload loop).
+- `ra_helper.sh` SCRIPT_VERSION → 0.3.0 (Updates submenu; new Uninstall
+  entry; About box expanded).
+- `docs/USAGE.md`: documents the menu changes, `ra_uninstall.sh`, and
+  `ra_self_update.sh`. "Removing the toolkit entirely" now points at the
+  one-shot uninstaller; manual steps remain as a fallback.
+
 ## [0.2.2] - 2026-04-15
 
 ### Changed

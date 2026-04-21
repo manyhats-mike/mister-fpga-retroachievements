@@ -15,9 +15,12 @@ From the MiSTer main menu: **Scripts → RA_Helper**.
 | Status | `.ra/ra_status.sh` | no (read-only) |
 | Turn RA cores ON | `.ra/ra_on.sh` | no (idempotent) |
 | Turn RA cores OFF | `.ra/ra_off.sh` | no (idempotent) |
-| Update odelot assets | `.ra/ra_update.sh` (with `RA_UPDATE_ASSUME_YES=1`) | no, but downloads from GitHub |
+| Updates ▸ Update RA cores (odelot) | `.ra/ra_update.sh` (`RA_UPDATE_ASSUME_YES=1`) | no, but downloads from GitHub |
+| Updates ▸ Update toolkit (scripts) | `.ra/ra_self_update.sh` (`RA_SELF_UPDATE_ASSUME_YES=1`) | no (keeps timestamped backup of prior scripts) |
+| Updates ▸ View changelog | `dialog --textbox` on `.ra/CHANGELOG.md` | no (read-only) |
 | View README | inline help text | no |
 | Rollback main binary | `.ra/ra_rollback_binary.sh` after two confirmations | **yes — reboots** |
+| Uninstall toolkit | `.ra/ra_uninstall.sh` after two confirmations | **yes — wipes everything + reboots** |
 
 Output from each script is captured and shown in a scrollable text box
 so you can read what happened before returning to the menu.
@@ -76,7 +79,8 @@ stays resident for no-reboot toggling.
 
 ## Pull the latest odelot binary + cores
 
-From the menu: **Update odelot assets**. Confirms once, then runs.
+From the menu: **Updates ▸ Update RA cores (odelot)**. Confirms once, then
+runs.
 
 Queries GitHub for every `odelot/*_MiSTer` repo, downloads the latest
 release assets into `_RA_Cores/`, and updates `_RA_Cores/.manifest`.
@@ -87,6 +91,32 @@ release assets into `_RA_Cores/`, and updates `_RA_Cores/.manifest`.
 
 After updates, run **Turn RA cores ON** again if RA mode was on, so the
 new binary / cores are actually in effect.
+
+## Pull the latest version of this toolkit's scripts
+
+From the menu: **Updates ▸ Update toolkit (scripts)**. Fetches the latest
+tagged release of `manyhats-mike/mister-fpga-retroachievements` from
+GitHub, validates the extracted tarball, then replaces the helpers under
+`/media/fat/Scripts/RA_Helper.sh` and `/media/fat/Scripts/.ra/`. Prior
+scripts are copied to `/media/fat/Scripts/.ra/.backup_<timestamp>/` before
+overwriting so a bad release can be rolled back manually.
+
+This does **not** touch odelot's binary, the modified cores, your
+credentials, or the boot hook. Run **Update RA cores (odelot)** for those.
+
+Equivalent CLI:
+
+```sh
+/media/fat/Scripts/.ra/ra_self_update.sh
+# force a re-install even if already on the latest tag:
+RA_SELF_UPDATE_FORCE=1 /media/fat/Scripts/.ra/ra_self_update.sh
+```
+
+## View the changelog from the device
+
+From the menu: **Updates ▸ View changelog**. Opens the shipped
+`CHANGELOG.md` in a scrollable `dialog` textbox so you can see what
+changed in each release without leaving the device.
 
 ## After running `update_all`
 
@@ -111,6 +141,33 @@ Your cores are untouched by this; if you want stock cores back too, run
 **Turn RA cores OFF** first, then the rollback.
 
 ## Removing the toolkit entirely
+
+From the menu: **Uninstall toolkit**. Confirms twice, then does the full
+sequence in one shot and reboots:
+
+1. reverts every RA symlink, restores the stashed stock `.rbf` files
+2. copies `MiSTer.stock` over `/media/fat/MiSTer`
+3. strips the `RA_AUTORESTORE` block from `user-startup.sh`
+4. deletes `/media/fat/_RA_Cores/`, `MiSTer.stock`, `achievement.wav`,
+   `retroachievements.cfg` (credentials), `Scripts/RA_Helper.sh`, and
+   `Scripts/.ra/`
+5. reboots
+
+Set `RA_KEEP_CFG=1` in the environment if you want
+`/media/fat/retroachievements.cfg` preserved; by default it is deleted
+because it stores your RA account password in plaintext.
+
+Saved games, screenshots, and cores for non-RA systems are not touched.
+
+Equivalent CLI invocation:
+
+```sh
+/media/fat/Scripts/.ra/ra_uninstall.sh
+# or non-interactively:
+RA_UNINSTALL_ASSUME_YES=1 /media/fat/Scripts/.ra/ra_uninstall.sh
+```
+
+If the uninstall script is missing or broken, the manual steps are:
 
 ```sh
 /media/fat/Scripts/.ra/ra_off.sh               # restore stock cores
@@ -137,6 +194,7 @@ helpers are still individually callable:
 /media/fat/Scripts/.ra/ra_off.sh
 /media/fat/Scripts/.ra/ra_update.sh
 /media/fat/Scripts/.ra/ra_rollback_binary.sh
+/media/fat/Scripts/.ra/ra_uninstall.sh
 ```
 
 Their behavior is unchanged from when they lived under `/media/fat/Scripts/`

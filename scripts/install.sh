@@ -32,7 +32,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.2.2"
+SCRIPT_VERSION="0.3.0"
 
 : "${MISTER_HOST:?MISTER_HOST is required (e.g. 192.168.1.42)}"
 MISTER_USER="${MISTER_USER:-root}"
@@ -198,11 +198,16 @@ ftp_mkd "/media/fat/Scripts/.ra"
 ftp_put "$SCRIPT_SRC_DIR/ra_helper.sh" "/media/fat/Scripts/RA_Helper.sh"
 curl -sS -u "${MISTER_USER}:${MISTER_PASS}" --quote "SITE CHMOD 755 /media/fat/Scripts/RA_Helper.sh" "$(ftp_url "/")" >/dev/null 2>&1 || true
 echo "  uploaded RA_Helper.sh (MiSTer menu entry)"
-for s in ra_on.sh ra_off.sh ra_status.sh ra_update.sh ra_rollback_binary.sh; do
+for s in ra_on.sh ra_off.sh ra_status.sh ra_update.sh ra_rollback_binary.sh ra_uninstall.sh ra_self_update.sh; do
   ftp_put "$SCRIPT_SRC_DIR/$s" "/media/fat/Scripts/.ra/$s"
   curl -sS -u "${MISTER_USER}:${MISTER_PASS}" --quote "SITE CHMOD 755 /media/fat/Scripts/.ra/$s" "$(ftp_url "/")" >/dev/null 2>&1 || true
   echo "  uploaded .ra/$s"
 done
+
+# Ship VERSION + CHANGELOG so the menu's changelog viewer and the self-
+# updater's version check have something to read locally.
+ftp_put "$PROJECT_ROOT/VERSION"      "/media/fat/Scripts/.ra/VERSION"      && echo "  uploaded .ra/VERSION"
+ftp_put "$PROJECT_ROOT/CHANGELOG.md" "/media/fat/Scripts/.ra/CHANGELOG.md" && echo "  uploaded .ra/CHANGELOG.md"
 
 # --- 6. append boot auto-restore hook to user-startup.sh ---
 echo "== installing boot auto-restore hook =="

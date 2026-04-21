@@ -23,8 +23,10 @@ This repo fixes that conflict. It:
 - Keeps `update_all` fully in charge of stock cores. Nothing in `_Console`,
   `_Computer`, or `_Other` is altered in the off state.
 - Stages odelot's modified binary + cores in a parallel folder, `_RA_Cores`.
-- Provides five small scripts to toggle RA on or off, check status, update
-  odelot's assets from GitHub, and roll back the main binary in emergencies.
+- Provides a menu (`RA_Helper` in the MiSTer Scripts browser) to toggle RA
+  on or off, check status, update odelot's assets from GitHub, view the
+  changelog, self-update the toolkit, roll back the main binary in
+  emergencies, or fully uninstall everything in one shot.
 - Installs a tiny hook in `user-startup.sh` so the modified binary survives
   any future `update_all` run: if it gets clobbered, the next boot restores
   it automatically.
@@ -69,32 +71,39 @@ MISTER_HOST=192.168.1.42 ./scripts/install.sh
 Then on the MiSTer (SSH / console):
 
 ```sh
-# 1. edit your credentials
+# 1. edit your credentials (password field is your RA ACCOUNT password,
+#    not a Web API key)
 vi /media/fat/retroachievements.cfg
 
 # 2. reboot once so the modified binary takes over
 reboot
-
-# 3. after reboot, check the state and flip to RA mode
-/media/fat/Scripts/ra_status.sh
-/media/fat/Scripts/ra_on.sh
 ```
 
-Launch any supported system's game and look for the RA achievement set
-popup in the OSD.
+After reboot, open the MiSTer main menu → **Scripts → RA_Helper** and
+use **Status** then **Turn RA cores ON**. Launch any supported system's
+game and look for the RA achievement set popup in the OSD.
 
 ## Daily use
 
-| Task | Command |
-|------|---------|
-| Turn RA cores on | `/media/fat/Scripts/ra_on.sh` |
-| Turn RA cores off (back to stock) | `/media/fat/Scripts/ra_off.sh` |
-| Check what's currently active | `/media/fat/Scripts/ra_status.sh` |
-| Pull fresh odelot binary + cores | `/media/fat/Scripts/ra_update.sh` |
-| Nuclear rollback of the main binary | `/media/fat/Scripts/ra_rollback_binary.sh` |
+Primary entry point: `RA_Helper` in the MiSTer Scripts menu.
 
-`ra_on.sh` is idempotent — run it again after `update_all` pulls a newer
-stock core and it will re-stash and re-symlink the fresh file.
+| Menu action | What it does |
+|-------------|--------------|
+| Status | Show current RA / stock state for every core + the main binary |
+| Turn RA cores ON | Activate RA-enabled cores (idempotent) |
+| Turn RA cores OFF | Revert to stock cores (main binary stays — no reboot) |
+| Updates ▸ Update RA cores (odelot) | Fetch latest odelot binary + cores |
+| Updates ▸ Update toolkit (scripts) | Pull the latest release of this toolkit from GitHub |
+| Updates ▸ View changelog | Read CHANGELOG.md right on the device |
+| Rollback main binary | Emergency restore of stock MiSTer binary (reboots) |
+| Uninstall toolkit | Wipe everything this toolkit installed (reboots) |
+
+"Turn RA cores ON" is idempotent — run it again after `update_all` pulls
+a newer stock core and it will re-stash and re-symlink the fresh file.
+
+Direct CLI fallback (scripting, SSH sessions): the helpers are in
+`/media/fat/Scripts/.ra/ra_{on,off,status,update,rollback_binary,uninstall,self_update}.sh`.
+See [docs/USAGE.md](docs/USAGE.md) for details.
 
 ## Repository layout
 
@@ -106,11 +115,15 @@ stock core and it will re-stash and re-symlink the fresh file.
 ├── VERSION
 ├── scripts/
 │   ├── install.sh              # bootstrap onto a MiSTer over FTP
+│   ├── ra_helper.sh            # dialog menu (deployed as RA_Helper.sh)
 │   ├── ra_on.sh                # activate RA mode
 │   ├── ra_off.sh               # revert to stock cores
 │   ├── ra_status.sh            # print current state
 │   ├── ra_update.sh            # refresh odelot assets from GitHub
-│   └── ra_rollback_binary.sh   # escape hatch - restore stock main binary
+│   ├── ra_rollback_binary.sh   # escape hatch - restore stock main binary
+│   ├── ra_uninstall.sh         # full wipe of this toolkit
+│   ├── ra_self_update.sh       # pull the latest release from GitHub
+│   └── release.sh              # maintainer: cut a GitHub release
 ├── config/
 │   ├── retroachievements.cfg.example
 │   └── manifest.example
