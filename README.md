@@ -83,6 +83,31 @@ After reboot, open the MiSTer main menu → **Scripts → RA_Helper** and
 use **Status** then **Turn RA cores ON**. Launch any supported system's
 game and look for the RA achievement set popup in the OSD.
 
+## Upgrading from v0.2.x
+
+If you already have a v0.2.x install on your MiSTer, just re-run the
+installer once from your workstation to land the new files:
+
+```sh
+cd mister-fpga-retroachievements
+git pull
+MISTER_HOST=192.168.1.42 ./scripts/install.sh
+```
+
+This is **safe and idempotent**:
+
+- Your credentials (`/media/fat/retroachievements.cfg`) are left alone.
+- Your RA cores, manifest, and `MiSTer.stock` backup are not touched.
+- The boot hook is not re-appended (it's already there).
+- Only the helper scripts, menu, `VERSION`, and `CHANGELOG.md` are refreshed.
+
+No reboot required. Once it finishes, open the **RA_Helper** menu —
+you'll see the new **Updates ▸** submenu and **Uninstall toolkit** entry.
+
+From v0.3.0 onward you can skip the workstation step entirely and use
+**Updates ▸ Update toolkit (scripts)** in the menu to pull future
+releases directly from GitHub.
+
 ## Daily use
 
 Primary entry point: `RA_Helper` in the MiSTer Scripts menu.

@@ -15,6 +15,27 @@ On the **MiSTer**:
 - `/media/fat/` should look like a normal MiSTer install (an `_Console`
   folder exists, `MiSTer` binary is present, etc.).
 
+## Upgrading from v0.2.x
+
+If you already installed a previous version and just want the latest
+scripts + menu, skip to the short upgrade flow:
+
+```sh
+cd mister-fpga-retroachievements
+git pull
+MISTER_HOST=192.168.1.42 ./scripts/install.sh
+```
+
+`install.sh` is idempotent. It leaves your credentials, RA cores,
+`MiSTer.stock` backup, and boot hook alone, and just refreshes the
+helper scripts, menu wrapper, `VERSION`, and `CHANGELOG.md`. No reboot
+required.
+
+After this once-off upgrade, you can run all future updates from the
+device itself: **RA_Helper → Updates ▸ Update toolkit (scripts)**.
+
+Fresh installs continue from Step 1 below.
+
 ## Step 1: clone and configure
 
 ```sh
@@ -52,9 +73,11 @@ The installer will:
    so you have a verified rollback copy.
 5. Upload everything to `/media/fat/_RA_Cores/`, install `RA_Helper.sh`
    (the dialog menu) to `/media/fat/Scripts/` as the single MiSTer-menu
-   entry for this tool, install the five toggle scripts under the
-   hidden `/media/fat/Scripts/.ra/` directory, and append the boot
-   auto-restore hook to `/media/fat/linux/user-startup.sh`.
+   entry for this tool, install the seven helper scripts (on/off/status/
+   update/rollback_binary/uninstall/self_update) plus `VERSION` and
+   `CHANGELOG.md` under the hidden `/media/fat/Scripts/.ra/` directory,
+   and append the boot auto-restore hook to
+   `/media/fat/linux/user-startup.sh`.
 
 Expected runtime: two to five minutes depending on network speed. The
 core `.rbf` files total ~25 MB.
