@@ -15,6 +15,7 @@
 #   /media/fat/Scripts/.ra/ra_on.sh
 #   /media/fat/Scripts/.ra/ra_off.sh
 #   /media/fat/Scripts/.ra/ra_status.sh
+#   /media/fat/Scripts/.ra/ra_hardcore.sh
 #   /media/fat/Scripts/.ra/ra_update.sh
 #   /media/fat/Scripts/.ra/ra_rollback_binary.sh
 #   /media/fat/Scripts/.ra/ra_uninstall.sh
@@ -41,7 +42,7 @@
 
 set -u
 
-SCRIPT_VERSION="0.3.0"
+SCRIPT_VERSION="0.4.0"
 
 REPO="manyhats-mike/mister-fpga-retroachievements"
 API="https://api.github.com"
@@ -159,6 +160,7 @@ for f in \
   scripts/ra_on.sh \
   scripts/ra_off.sh \
   scripts/ra_status.sh \
+  scripts/ra_hardcore.sh \
   scripts/ra_update.sh \
   scripts/ra_rollback_binary.sh \
   scripts/ra_uninstall.sh \
@@ -198,7 +200,7 @@ install_file() {
 }
 
 install_file "$ROOT/scripts/ra_helper.sh" "$MENU"
-for s in ra_on.sh ra_off.sh ra_status.sh ra_update.sh ra_rollback_binary.sh ra_uninstall.sh ra_self_update.sh; do
+for s in ra_on.sh ra_off.sh ra_status.sh ra_hardcore.sh ra_update.sh ra_rollback_binary.sh ra_uninstall.sh ra_self_update.sh; do
   install_file "$ROOT/scripts/$s" "$HELPERS_DIR/$s"
 done
 

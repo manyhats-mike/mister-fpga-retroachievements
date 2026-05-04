@@ -15,6 +15,7 @@ From the MiSTer main menu: **Scripts → RA_Helper**.
 | Status | `.ra/ra_status.sh` | no (read-only) |
 | Turn RA cores ON | `.ra/ra_on.sh` | no (idempotent) |
 | Turn RA cores OFF | `.ra/ra_off.sh` | no (idempotent) |
+| Hardcore mode | `.ra/ra_hardcore.sh toggle` after a confirm | rewrites cfg only |
 | Updates ▸ Update RA cores (odelot) | `.ra/ra_update.sh` (`RA_UPDATE_ASSUME_YES=1`) | no, but downloads from GitHub |
 | Updates ▸ Update toolkit (scripts) | `.ra/ra_self_update.sh` (`RA_SELF_UPDATE_ASSUME_YES=1`) | no (keeps timestamped backup of prior scripts) |
 | Updates ▸ View changelog | `dialog --textbox` on `.ra/CHANGELOG.md` | no (read-only) |
@@ -30,8 +31,9 @@ so you can read what happened before returning to the menu.
 From the menu: **Status**. Sample output:
 
 ```
-ra_status v0.2.0
+ra_status v0.4.0
 Mode flag: ON
+Hardcore : ON  (NES/FDS only enforced upstream)
 /media/fat/MiSTer : RA (odelot)
 
 CORE         STATE   DETAILS
@@ -76,6 +78,36 @@ From the menu: **Turn RA cores OFF**.
 Removes the symlinks, moves stashed files back. Does **not** revert the
 main binary — odelot's binary is backward-compatible with stock cores and
 stays resident for no-reboot toggling.
+
+## Toggle hardcore mode
+
+From the menu: **Hardcore mode**. The menu label shows the current
+state in line; selecting it opens a confirm dialog showing the current
+state, the new state if you proceed, and the upstream caveat (NES/FDS
+only enforced today). Confirming flips the `hardcore=` field in
+`/media/fat/retroachievements.cfg`.
+
+The change takes effect on the **next core load** — no reboot, but
+you do need to relaunch the core for the binary to read the new flag.
+
+Equivalent CLI:
+
+```sh
+/media/fat/Scripts/.ra/ra_hardcore.sh status   # default if no arg
+/media/fat/Scripts/.ra/ra_hardcore.sh on
+/media/fat/Scripts/.ra/ra_hardcore.sh off
+/media/fat/Scripts/.ra/ra_hardcore.sh toggle
+```
+
+The helper writes via temp-file + atomic rename, and collapses any
+duplicate `hardcore=` lines into a single authoritative entry. If the
+cfg has no `hardcore=` line at all, it appends one with an explanatory
+comment block.
+
+> **Per-core enforcement:** odelot's binary enforces hardcore for the
+> NES/FDS path today. Other cores accept `hardcore=1` but silently run
+> as softcore. See `docs/CORES.md` → "Hardcore mode" for the longer
+> explanation.
 
 ## Pull the latest odelot binary + cores
 
@@ -192,6 +224,7 @@ helpers are still individually callable:
 /media/fat/Scripts/.ra/ra_status.sh
 /media/fat/Scripts/.ra/ra_on.sh
 /media/fat/Scripts/.ra/ra_off.sh
+/media/fat/Scripts/.ra/ra_hardcore.sh [status|on|off|toggle]
 /media/fat/Scripts/.ra/ra_update.sh
 /media/fat/Scripts/.ra/ra_rollback_binary.sh
 /media/fat/Scripts/.ra/ra_uninstall.sh

@@ -5,6 +5,13 @@ password=YOUR_RA_ACCOUNT_PASSWORD
 # password. odelot's binary calls rc_client_begin_login_with_password() on
 # first login, then caches a session token. This is NOT your Web API key.
 
+# Hardcore mode (1=enabled, 0=disabled). Default OFF.
+# IMPORTANT: at upstream level today (odelot v1.x), only the NES/FDS path
+# actually enforces hardcore (load-state and cheats are blocked). Other
+# cores accept the flag but silently run as softcore. Toggle from the
+# RA_Helper menu's "Hardcore mode" entry, or with ra_hardcore.sh.
+hardcore=0
+
 # Show popup when a challenge indicator appears (1=yes, 0=no)
 show_challenge_show_popup=1
 

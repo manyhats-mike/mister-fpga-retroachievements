@@ -35,23 +35,34 @@ This repo fixes that conflict. It:
 
 ## Supported systems
 
-Whatever odelot has published. At v0.1.0: **NES, SNES, Genesis / Mega Drive,
-Master System / Game Gear, Game Boy / Game Boy Color, N64, PSX**. GBA and
-Neo Geo repos exist in odelot's profile but have no releases yet; the
-updater will pick them up when they ship.
+Whatever odelot has published. As of odelot's **v1.1.x** binary line:
+**NES, Famicom Disk System, SNES, Genesis / Mega Drive, Master System /
+Game Gear, Game Boy / Game Boy Color, N64, PSX, Game Boy Advance,
+Mega CD / Sega CD, Neo Geo (MVS / AES / CD), TurboGrafx-16 / PC Engine,
+Atari 2600 (via Atari7800 core), Sega 32X**.
 
-> Atari 2600, Intellivision, arcade, Saturn, Sega CD, and any other system
-> not in the list above have **no RetroAchievements support on MiSTer today**,
-> from anyone. This toolkit cannot add support that doesn't exist upstream.
+`ra_update.sh` auto-discovers any new `odelot/*_MiSTer` repo with a
+published release, so the supported list grows automatically as odelot
+ships new cores — no toolkit update required.
+
+> Intellivision, arcade, Saturn, Atari Jaguar, Atari 5200/Lynx, and other
+> systems outside the list above have **no RetroAchievements support on
+> MiSTer today** from anyone. Achievements require core-side cooperation
+> to publish emulated RAM to DDRAM; this toolkit cannot add support that
+> doesn't exist upstream.
 
 ## Important caveats
 
-- **Softcore only.** odelot's integration explicitly disables hardcore mode
-  because there is no anti-tamper mechanism on MiSTer yet. Unlocks land on
-  the softcore leaderboard and **do not** count for hardcore ranking.
-- **Experimental upstream.** odelot describes the integration as
-  proof-of-concept. Expect occasional regressions between releases. The
-  included `ra_rollback_binary.sh` reverts to the stock upstream binary.
+- **Hardcore mode is per-core.** As of odelot's v1.x binary, hardcore is
+  enforced for the **NES / FDS path only** (load-state and cheats are
+  blocked at the core level). Other cores accept the `hardcore=1` flag
+  but silently run as softcore. Toggle from the **Hardcore mode** entry
+  in the `RA_Helper` menu.
+- **Experimental upstream.** odelot's binary moved from `poc-vN` tags to
+  proper `vX.Y` releases at v1.0 (Apr 26 2026), but the integration is
+  still relatively young. Expect occasional regressions between releases.
+  `ra_rollback_binary.sh` reverts to the stock upstream binary as an
+  escape hatch.
 - **Plaintext credentials.** The SD card is FAT32, which cannot enforce
   Unix permissions. `/media/fat/retroachievements.cfg` is world-readable
   to anyone with physical or FTP access to the card.
@@ -83,10 +94,14 @@ After reboot, open the MiSTer main menu → **Scripts → RA_Helper** and
 use **Status** then **Turn RA cores ON**. Launch any supported system's
 game and look for the RA achievement set popup in the OSD.
 
-## Upgrading from v0.2.x
+## Upgrading
 
-If you already have a v0.2.x install on your MiSTer, just re-run the
-installer once from your workstation to land the new files:
+**From v0.3.x →** open the `RA_Helper` menu on the device and pick
+**Updates ▸ Update toolkit (scripts)**. The self-updater pulls v0.4.0
+from GitHub, validates the tarball, and installs `ra_hardcore.sh`
+alongside the existing helpers. No workstation involvement required.
+
+**From v0.2.x →** re-run the installer once from your workstation:
 
 ```sh
 cd mister-fpga-retroachievements
@@ -101,12 +116,8 @@ This is **safe and idempotent**:
 - The boot hook is not re-appended (it's already there).
 - Only the helper scripts, menu, `VERSION`, and `CHANGELOG.md` are refreshed.
 
-No reboot required. Once it finishes, open the **RA_Helper** menu —
-you'll see the new **Updates ▸** submenu and **Uninstall toolkit** entry.
-
-From v0.3.0 onward you can skip the workstation step entirely and use
-**Updates ▸ Update toolkit (scripts)** in the menu to pull future
-releases directly from GitHub.
+No reboot required. From v0.3.0 onward you can use the menu's
+**Updates ▸ Update toolkit (scripts)** entry for future releases.
 
 ## Daily use
 
@@ -114,9 +125,10 @@ Primary entry point: `RA_Helper` in the MiSTer Scripts menu.
 
 | Menu action | What it does |
 |-------------|--------------|
-| Status | Show current RA / stock state for every core + the main binary |
+| Status | Show current RA / stock state for every core + the main binary, plus hardcore flag |
 | Turn RA cores ON | Activate RA-enabled cores (idempotent) |
 | Turn RA cores OFF | Revert to stock cores (main binary stays — no reboot) |
+| Hardcore mode | Toggle the `hardcore=` flag in the cfg (NES/FDS only enforced upstream today) |
 | Updates ▸ Update RA cores (odelot) | Fetch latest odelot binary + cores |
 | Updates ▸ Update toolkit (scripts) | Pull the latest release of this toolkit from GitHub |
 | Updates ▸ View changelog | Read CHANGELOG.md right on the device |
@@ -127,7 +139,7 @@ Primary entry point: `RA_Helper` in the MiSTer Scripts menu.
 a newer stock core and it will re-stash and re-symlink the fresh file.
 
 Direct CLI fallback (scripting, SSH sessions): the helpers are in
-`/media/fat/Scripts/.ra/ra_{on,off,status,update,rollback_binary,uninstall,self_update}.sh`.
+`/media/fat/Scripts/.ra/ra_{on,off,status,hardcore,update,rollback_binary,uninstall,self_update}.sh`.
 See [docs/USAGE.md](docs/USAGE.md) for details.
 
 ## Repository layout
@@ -144,6 +156,7 @@ See [docs/USAGE.md](docs/USAGE.md) for details.
 │   ├── ra_on.sh                # activate RA mode
 │   ├── ra_off.sh               # revert to stock cores
 │   ├── ra_status.sh            # print current state
+│   ├── ra_hardcore.sh          # toggle hardcore= in retroachievements.cfg
 │   ├── ra_update.sh            # refresh odelot assets from GitHub
 │   ├── ra_rollback_binary.sh   # escape hatch - restore stock main binary
 │   ├── ra_uninstall.sh         # full wipe of this toolkit

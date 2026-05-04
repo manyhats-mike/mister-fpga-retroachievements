@@ -12,10 +12,31 @@
 
 set -u
 
-SCRIPT_VERSION="0.3.0"
+SCRIPT_VERSION="0.4.0"
 
 SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")/.ra"
 TITLE="RetroAchievements Helper v${SCRIPT_VERSION}"
+CFG="/media/fat/retroachievements.cfg"
+
+# Read the hardcore=N line from the cfg without invoking the helper, so the
+# menu label can be rendered before opening the menu. Returns "ON", "OFF",
+# or "?" (cfg missing).
+hardcore_state() {
+  if [ ! -f "$CFG" ]; then
+    echo "?"
+    return
+  fi
+  v=$(awk -F= '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*hardcore[[:space:]]*=/ {
+      val=$2; gsub(/[[:space:]]/, "", val); print val; exit
+    }
+  ' "$CFG")
+  case "$v" in
+    1|true|TRUE|yes|YES|on|ON) echo "ON" ;;
+    *)                          echo "OFF" ;;
+  esac
+}
 
 if ! command -v dialog >/dev/null 2>&1; then
   cat >&2 <<EOF
@@ -25,7 +46,7 @@ RA_Helper.sh needs the 'dialog' utility. On MiSTer Linux:
   opkg update && opkg install dialog
 
 Or invoke the helpers directly under:
-  $SCRIPTS_DIR/ra_{on,off,status,update,rollback_binary,uninstall,self_update}.sh
+  $SCRIPTS_DIR/ra_{on,off,status,hardcore,update,rollback_binary,uninstall,self_update}.sh
 EOF
   exit 1
 fi
@@ -83,6 +104,11 @@ Menu actions:
              build (it is backward-compatible with stock cores, so games
              without RA support still work fine).
 
+ Hardcore    Toggle the 'hardcore=' field in retroachievements.cfg. At
+             upstream level today, only the NES/FDS path actually
+             enforces hardcore -- other cores accept the flag but
+             silently run as softcore. Takes effect on next core load.
+
  Updates     Submenu: update odelot's binary/cores, update the toolkit's
              own scripts from GitHub, or view the CHANGELOG.
 
@@ -114,6 +140,31 @@ workstation." 10 66
     return
   fi
   dialog --title "Changelog (all releases)" --textbox "$cl" 30 90
+}
+
+confirm_hardcore() {
+  cur="$(hardcore_state)"
+  if [ "$cur" = "?" ]; then
+    dialog --title "Hardcore mode" --msgbox "\
+$CFG is missing.
+
+Cannot toggle hardcore without the cfg. Make sure odelot's binary
+has been deployed (run 'Update RA cores' if needed)." 10 66
+    return 1
+  fi
+  if [ "$cur" = "ON" ]; then
+    new="OFF"
+  else
+    new="ON"
+  fi
+  dialog --title "Hardcore mode" --yesno "\
+Hardcore is currently: ${cur}
+
+Flip to: ${new} ?
+
+Note: at upstream level today, only the NES/FDS path actually
+enforces hardcore. Other cores accept the flag but silently run
+as softcore. Takes effect on next core load." 13 66
 }
 
 confirm_update() {
@@ -211,17 +262,19 @@ updates_menu() {
 }
 
 while true; do
+  hc="$(hardcore_state)"
   choice="$(dialog --stdout --clear --title "$TITLE" \
     --cancel-label "Exit" \
-    --menu "Choose an action:" 17 72 8 \
+    --menu "Choose an action:" 18 72 9 \
     1 "Status               - show current RA/stock state" \
     2 "Turn RA cores ON     - activate RA-enabled cores" \
     3 "Turn RA cores OFF    - revert to stock cores" \
-    4 "Updates              - update RA cores, scripts, view changelog" \
-    5 "View README          - what each option does" \
-    6 "Rollback main binary - emergency restore + REBOOT" \
-    7 "Uninstall toolkit    - wipe everything + REBOOT" \
-    8 "Exit")"
+    4 "Hardcore mode        - currently: ${hc}  (toggle)" \
+    5 "Updates              - update RA cores, scripts, view changelog" \
+    6 "View README          - what each option does" \
+    7 "Rollback main binary - emergency restore + REBOOT" \
+    8 "Uninstall toolkit    - wipe everything + REBOOT" \
+    9 "Exit")"
   rc=$?
   if [ "$rc" -ne 0 ] || [ -z "$choice" ]; then
     clear
@@ -232,10 +285,11 @@ while true; do
     1) run_and_show "Status" ra_status.sh ;;
     2) run_and_show "Turn RA cores ON" ra_on.sh ;;
     3) run_and_show "Turn RA cores OFF" ra_off.sh ;;
-    4) updates_menu ;;
-    5) show_readme ;;
-    6) confirm_rollback && run_and_show "Rollback main binary" ra_rollback_binary.sh ;;
-    7) confirm_uninstall && run_and_show_env "Uninstall toolkit" "RA_UNINSTALL_ASSUME_YES=1" ra_uninstall.sh ;;
-    8) clear; exit 0 ;;
+    4) confirm_hardcore && run_and_show "Hardcore mode toggle" ra_hardcore.sh toggle ;;
+    5) updates_menu ;;
+    6) show_readme ;;
+    7) confirm_rollback && run_and_show "Rollback main binary" ra_rollback_binary.sh ;;
+    8) confirm_uninstall && run_and_show_env "Uninstall toolkit" "RA_UNINSTALL_ASSUME_YES=1" ra_uninstall.sh ;;
+    9) clear; exit 0 ;;
   esac
 done

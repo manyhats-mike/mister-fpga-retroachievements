@@ -36,7 +36,9 @@ MiSTer install:
 │   ├── NES_20260101.rbf       <- symlink to _RA_Cores/NES.rbf (when RA on)
 │   └── .ra_stash/             <- stock files stashed here when RA on
 ├── Scripts/
-│   └── ra_*.sh                <- the five toggle / status scripts
+│   ├── RA_Helper.sh           <- dialog menu (only main-menu-visible entry)
+│   └── .ra/
+│       └── ra_*.sh            <- toggle / status / update / hardcore / etc.
 └── linux/user-startup.sh      <- boot hook (RA_AUTORESTORE block)
 ```
 
@@ -124,7 +126,10 @@ only read it.
    and the generated manifest.
 6. Upload `retroachievements.cfg` placeholder (only if none already
    exists), upload `achievement.wav`.
-7. Upload the five toggle scripts into `/media/fat/Scripts/`, chmod 755.
+7. Upload `RA_Helper.sh` to `/media/fat/Scripts/` and the toggle/helper
+   scripts (`ra_on`, `ra_off`, `ra_status`, `ra_hardcore`, `ra_update`,
+   `ra_rollback_binary`, `ra_uninstall`, `ra_self_update`) plus
+   `VERSION` and `CHANGELOG.md` to `/media/fat/Scripts/.ra/`, chmod 755.
 8. Read `/media/fat/linux/user-startup.sh` (or create if absent); append
    the RA_AUTORESTORE block if not already present.
 

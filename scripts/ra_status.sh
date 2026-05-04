@@ -10,7 +10,7 @@
 
 set -eu
 
-SCRIPT_VERSION="0.1.0"
+SCRIPT_VERSION="0.4.0"
 
 RA_DIR="/media/fat/_RA_Cores"
 MANIFEST="${RA_DIR}/.manifest"
@@ -18,9 +18,30 @@ STATE="${RA_DIR}/.state"
 RA_BIN="${RA_DIR}/MiSTer.ra"
 STOCK_BIN="/media/fat/MiSTer.stock"
 LIVE_BIN="/media/fat/MiSTer"
+CFG="/media/fat/retroachievements.cfg"
+
+# Read hardcore=N from the cfg. "?" = cfg missing; absent line / unknown
+# value falls back to OFF (matches odelot's binary default).
+hardcore_state() {
+  if [ ! -f "$CFG" ]; then
+    echo "?"
+    return
+  fi
+  v=$(awk -F= '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*hardcore[[:space:]]*=/ {
+      val=$2; gsub(/[[:space:]]/, "", val); print val; exit
+    }
+  ' "$CFG")
+  case "$v" in
+    1|true|TRUE|yes|YES|on|ON) echo "ON" ;;
+    *)                          echo "OFF" ;;
+  esac
+}
 
 echo "ra_status v${SCRIPT_VERSION}"
 printf "Mode flag: %s\n" "$([ -f "$STATE" ] && cat "$STATE" || echo 'never toggled')"
+printf "Hardcore : %s%s\n" "$(hardcore_state)" "$([ "$(hardcore_state)" = "ON" ] && echo '  (NES/FDS only enforced upstream)')"
 
 if [ -f "$LIVE_BIN" ] && [ -f "$RA_BIN" ] && cmp -s "$LIVE_BIN" "$RA_BIN"; then
   bin_state="RA (odelot)"

@@ -4,6 +4,66 @@ All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/).
 
+## [0.4.0] - 2026-05-03
+
+### Upgrade notes
+- Existing v0.3.x installs: open the **RA_Helper** menu and run
+  **Updates ▸ Update toolkit (scripts)**. The self-updater pulls v0.4.0
+  from GitHub, validates the tarball, and installs `ra_hardcore.sh`
+  alongside the existing helpers. Your credentials, cores, and boot hook
+  are not touched. (Workstation re-install via `./scripts/install.sh` is
+  also still supported and does the same thing.)
+- Older v0.2.x installs: re-run `./scripts/install.sh` from your
+  workstation first (see v0.3.0 notes), then future updates can be driven
+  from the menu.
+
+### Added
+- `scripts/ra_hardcore.sh` — POSIX sh helper that reads or flips the
+  `hardcore=` field in `/media/fat/retroachievements.cfg`. Subcommands:
+  `status` (default), `on`, `off`, `toggle`. Writes via temp-file +
+  atomic rename; collapses any duplicate `hardcore=` lines into a single
+  authoritative one; auto-inserts the line (with explanatory comment) on
+  first use if the cfg has no existing entry.
+- `RA_Helper` menu: new top-level **Hardcore mode** entry. The menu
+  label shows the current state in line (`Hardcore mode - currently:
+  ON / OFF (toggle)`); selecting it opens a confirm dialog explaining
+  the upstream NES/FDS-only enforcement caveat, then runs
+  `ra_hardcore.sh toggle`.
+- `ra_status.sh` now prints a `Hardcore : ON|OFF` line alongside the
+  existing mode flag and binary status, so you can see hardcore state
+  at a glance without opening the cfg.
+- `config/retroachievements.cfg.example`: ships with `hardcore=0` and
+  an explanatory comment block.
+
+### Changed
+- `install.sh` SCRIPT_VERSION → 0.4.0 (uploads `ra_hardcore.sh`
+  alongside the other helpers).
+- `ra_helper.sh` SCRIPT_VERSION → 0.4.0 (Hardcore menu entry; About
+  text expanded; menu height bumped from 17/8 to 18/9).
+- `ra_self_update.sh` SCRIPT_VERSION → 0.4.0 (validates and installs
+  `ra_hardcore.sh` from the release tarball).
+- `ra_status.sh` SCRIPT_VERSION → 0.4.0 (hardcore line added).
+- `docs/CORES.md`: refreshed to match odelot's v1.1.x supported list —
+  GBA, Mega CD, Neo Geo, TurboGrafx-16, Atari 2600 (via Atari7800 core),
+  and Sega 32X are now in the supported table; FDS noted as auto-routing
+  via the NES core to console ID 91. New "Hardcore mode" section
+  describes the NES/FDS-only enforcement and how to toggle.
+- `docs/USAGE.md`: documents the Hardcore menu entry and the
+  `ra_hardcore.sh` CLI invocation.
+- `README.md`: replaced the blanket "softcore only" caveat with an
+  accurate description of the current per-core hardcore enforcement
+  (NES/FDS today; others auto-fallback). Refreshed supported-systems
+  list. Added Hardcore row to the menu table.
+- `CLAUDE.md`: refreshed the "Non-obvious domain facts" block — hardcore
+  is no longer disabled categorically; it is per-core at the upstream
+  level. Refreshed supported-cores list.
+
+### Notes
+- This release does not bump the upstream odelot binary requirement;
+  hardcore enforcement requires odelot v1.0 or newer (released
+  2026-04-26). If you have an older `MiSTer.ra`, run **Updates ▸
+  Update RA cores (odelot)** from the menu first.
+
 ## [0.3.0] - 2026-04-21
 
 ### Upgrade notes
