@@ -1,3 +1,17 @@
+> **Update — 2026-05-05**
+>
+> Things move fast in the MiSTer community. Since this toolkit was built,
+> [**MiSTer Companion**](https://github.com/Anime0t4ku/mister-companion) shipped
+> its own RetroAchievements core management (v3.8.0, 2026-05-02) — and because
+> it's fully integrated into a much broader MiSTer helper app (Save Manager,
+> update_all, Zaparoo, wallpapers, `MiSTer.ini` editor, ZapScripts, and more),
+> it's probably worth checking out as a better alternative to these scripts.
+>
+> The scripts in this repo still work and still give you a nice CRT-compatible,
+> on-device dialog-menu way to install and update odelot's RA cores. But
+> MiSTer Companion is likely to evolve faster from here, and has other RA
+> integrations (like an RA Viewer added in v3.9.0) worth poking at.
+
 # mister-fpga-retroachievements
 
 A management toolkit for deploying and toggling [odelot's RetroAchievements
